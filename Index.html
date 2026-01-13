@@ -1,81 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Cloud Arcade Game</title>
-    <style>
-        body {
-            margin: 0;
-            background: #0f172a;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            text-align: center;
-        }
+<meta charset="UTF-8">
+<title>Space Shooter Game</title>
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        text-align: center;
+    }
 
-        h1 {
-            margin: 10px 0;
-        }
+    h1 {
+        margin: 10px 0;
+    }
 
-        #gameArea {
-            position: relative;
-            width: 600px;
-            height: 400px;
-            background: #020617;
-            margin: 20px auto;
-            border: 3px solid #38bdf8;
-            overflow: hidden;
-        }
+    #gameArea {
+        position: relative;
+        width: 600px;
+        height: 400px;
+        background: #111;
+        margin: 20px auto;
+        border: 3px solid #0ea5e9;
+        overflow: hidden;
+    }
 
-        .player {
-            width: 40px;
-            height: 40px;
-            background: #22c55e;
-            position: absolute;
-            bottom: 10px;
-            left: 280px;
-            border-radius: 5px;
-        }
+    .player {
+        width: 40px;
+        height: 40px;
+        background: #22c55e;
+        position: absolute;
+        bottom: 10px;
+        left: 280px;
+        border-radius: 5px;
+    }
 
-        .enemy {
-            width: 40px;
-            height: 40px;
-            background: #ef4444;
-            position: absolute;
-            top: 0;
-            border-radius: 50%;
-        }
+    .bullet {
+        width: 5px;
+        height: 20px;
+        background: #facc15;
+        position: absolute;
+    }
 
-        .coin {
-            width: 20px;
-            height: 20px;
-            background: gold;
-            position: absolute;
-            border-radius: 50%;
-        }
+    .enemy {
+        width: 40px;
+        height: 40px;
+        background: #ef4444;
+        position: absolute;
+        border-radius: 50%;
+    }
 
-        #scoreBoard {
-            font-size: 18px;
-            margin-top: 10px;
-        }
+    #scoreBoard {
+        font-size: 18px;
+        margin-top: 10px;
+    }
 
-        button {
-            padding: 10px 20px;
-            background: #38bdf8;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+    button {
+        padding: 10px 20px;
+        background: #0ea5e9;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
 
-        button:hover {
-            background: #0ea5e9;
-        }
-    </style>
+    button:hover {
+        background: #38bdf8;
+    }
+</style>
 </head>
 <body>
 
-<h1>🎮 Cloud Arcade Game</h1>
-<p>Move using ⬅️ ➡️ arrows | Collect coins | Avoid enemies</p>
+<h1>🚀 Space Shooter Game</h1>
+<p>Move using ⬅️ ➡️ arrows | Shoot using Spacebar</p>
 
 <div id="gameArea">
     <div class="player" id="player"></div>
@@ -97,9 +95,10 @@
     let score = 0;
     let gameInterval;
     let enemyInterval;
-    let coinInterval;
+    let bullets = [];
 
     document.addEventListener("keydown", movePlayer);
+    document.addEventListener("keydown", shootBullet);
 
     function movePlayer(e) {
         if (e.key === "ArrowLeft" && playerX > 0) {
@@ -110,14 +109,51 @@
         player.style.left = playerX + "px";
     }
 
+    function shootBullet(e) {
+        if (e.key === " " || e.key === "Spacebar") {
+            const bullet = document.createElement("div");
+            bullet.classList.add("bullet");
+            bullet.style.left = playerX + 17 + "px";
+            bullet.style.top = 360 + "px";
+            gameArea.appendChild(bullet);
+            bullets.push(bullet);
+
+            const moveBullet = setInterval(() => {
+                let bulletY = parseInt(bullet.style.top);
+                bulletY -= 10;
+                bullet.style.top = bulletY + "px";
+
+                // remove bullet if out of screen
+                if (bulletY < 0) {
+                    bullet.remove();
+                    clearInterval(moveBullet);
+                    bullets = bullets.filter(b => b !== bullet);
+                }
+
+                // check collision with enemies
+                document.querySelectorAll(".enemy").forEach(enemy => {
+                    if (checkCollision(bullet, enemy)) {
+                        score += 10;
+                        scoreEl.textContent = score;
+                        enemy.remove();
+                        bullet.remove();
+                        bullets = bullets.filter(b => b !== bullet);
+                        clearInterval(moveBullet);
+                    }
+                });
+            }, 30);
+        }
+    }
+
     function createEnemy() {
         const enemy = document.createElement("div");
         enemy.classList.add("enemy");
         enemy.style.left = Math.floor(Math.random() * 560) + "px";
+        enemy.style.top = 0 + "px";
         gameArea.appendChild(enemy);
 
-        let enemyY = 0;
         const moveEnemy = setInterval(() => {
+            let enemyY = parseInt(enemy.style.top);
             enemyY += 5;
             enemy.style.top = enemyY + "px";
 
@@ -129,35 +165,12 @@
             if (checkCollision(enemy, player)) {
                 gameOver();
             }
-        }, 30);
-    }
-
-    function createCoin() {
-        const coin = document.createElement("div");
-        coin.classList.add("coin");
-        coin.style.left = Math.floor(Math.random() * 580) + "px";
-        coin.style.top = Math.floor(Math.random() * 300) + "px";
-        gameArea.appendChild(coin);
-
-        const checkCoin = setInterval(() => {
-            if (checkCollision(coin, player)) {
-                score += 10;
-                scoreEl.textContent = score;
-                coin.remove();
-                clearInterval(checkCoin);
-            }
         }, 50);
-
-        setTimeout(() => {
-            if (coin.parentElement) coin.remove();
-            clearInterval(checkCoin);
-        }, 5000);
     }
 
     function checkCollision(a, b) {
         const rect1 = a.getBoundingClientRect();
         const rect2 = b.getBoundingClientRect();
-
         return !(
             rect1.top > rect2.bottom ||
             rect1.bottom < rect2.top ||
@@ -168,8 +181,7 @@
 
     function startGame() {
         resetGame();
-        enemyInterval = setInterval(createEnemy, 1200);
-        coinInterval = setInterval(createCoin, 2000);
+        enemyInterval = setInterval(createEnemy, 1500);
     }
 
     function resetGame() {
@@ -177,11 +189,12 @@
         scoreEl.textContent = score;
         gameArea.innerHTML = '<div class="player" id="player"></div>';
         playerX = 280;
+        bullets = [];
+        player.style.left = playerX + "px";
     }
 
     function gameOver() {
         clearInterval(enemyInterval);
-        clearInterval(coinInterval);
         alert("Game Over! Your Score: " + score);
     }
 </script>
