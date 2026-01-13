@@ -1,167 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>MyBank - Online Banking</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f1f5f9;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8">
+<title>Space Shooter Game</title>
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        text-align: center;
+    }
 
-        header {
-            background: #0ea5e9;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+    h1 {
+        margin: 10px 0;
+    }
 
-        h1 {
-            margin: 0;
-        }
+    #gameArea {
+        position: relative;
+        width: 600px;
+        height: 400px;
+        background: #111;
+        margin: 20px auto;
+        border: 3px solid #0ea5e9;
+        overflow: hidden;
+    }
 
-        .container {
-            max-width: 400px;
-            margin: 40px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+    .player {
+        width: 40px;
+        height: 40px;
+        background: #22c55e;
+        position: absolute;
+        bottom: 10px;
+        left: 280px;
+        border-radius: 5px;
+    }
 
-        input[type="text"], input[type="password"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0 20px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+    .bullet {
+        width: 5px;
+        height: 20px;
+        background: #facc15;
+        position: absolute;
+    }
 
-        button {
-            background: #0ea5e9;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-        }
+    .enemy {
+        width: 40px;
+        height: 40px;
+        background: #ef4444;
+        position: absolute;
+        border-radius: 50%;
+    }
 
-        button:hover {
-            background: #38bdf8;
-        }
+    #scoreBoard {
+        font-size: 18px;
+        margin-top: 10px;
+    }
 
-        .hidden {
-            display: none;
-        }
+    button {
+        padding: 10px 20px;
+        background: #0ea5e9;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
 
-        .balance {
-            font-size: 18px;
-            margin: 10px 0;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        .message {
-            color: green;
-            margin-top: 10px;
-        }
-
-        .error {
-            color: red;
-        }
-    </style>
+    button:hover {
+        background: #38bdf8;
+    }
+</style>
 </head>
 <body>
 
-<header>
-    <h1>MyBank Online</h1>
-</header>
+<h1>🚀 Space Shooter Game</h1>
+<p>Move using ⬅️ ➡️ arrows | Shoot using Spacebar</p>
 
-<div class="container" id="loginDiv">
-    <h2>Login</h2>
-    <label>Username</label>
-    <input type="text" id="username" placeholder="Enter username">
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Enter password">
-    <button onclick="login()">Login</button>
-    <p id="loginMessage" class="error"></p>
+<div id="gameArea">
+    <div class="player" id="player"></div>
 </div>
 
-<div class="container hidden" id="dashboardDiv">
-    <h2>Dashboard</h2>
-    <p class="balance">Balance: $<span id="balance">1000</span></p>
-    
-    <h3>Transfer Money</h3>
-    <label>Recipient</label>
-    <input type="text" id="recipient" placeholder="Recipient name">
-    <label>Amount</label>
-    <input type="number" id="amount" placeholder="Amount">
-    <button onclick="transfer()">Transfer</button>
-    <p id="transferMessage" class="message"></p>
-
-    <button style="margin-top:20px;" onclick="logout()">Logout</button>
+<div id="scoreBoard">
+    Score: <span id="score">0</span>
 </div>
+
+<br>
+<button onclick="startGame()">Start Game</button>
 
 <script>
-    let userBalance = 1000;
+    const gameArea = document.getElementById("gameArea");
+    const player = document.getElementById("player");
+    const scoreEl = document.getElementById("score");
 
-    function login() {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const message = document.getElementById("loginMessage");
+    let playerX = 280;
+    let score = 0;
+    let gameInterval;
+    let enemyInterval;
+    let bullets = [];
 
-        // Simple demo validation
-        if(username === "user" && password === "1234") {
-            document.getElementById("loginDiv").classList.add("hidden");
-            document.getElementById("dashboardDiv").classList.remove("hidden");
-            message.textContent = "";
-        } else {
-            message.textContent = "Invalid username or password";
+    document.addEventListener("keydown", movePlayer);
+    document.addEventListener("keydown", shootBullet);
+
+    function movePlayer(e) {
+        if (e.key === "ArrowLeft" && playerX > 0) {
+            playerX -= 20;
+        } else if (e.key === "ArrowRight" && playerX < 560) {
+            playerX += 20;
+        }
+        player.style.left = playerX + "px";
+    }
+
+    function shootBullet(e) {
+        if (e.key === " " || e.key === "Spacebar") {
+            const bullet = document.createElement("div");
+            bullet.classList.add("bullet");
+            bullet.style.left = playerX + 17 + "px";
+            bullet.style.top = 360 + "px";
+            gameArea.appendChild(bullet);
+            bullets.push(bullet);
+
+            const moveBullet = setInterval(() => {
+                let bulletY = parseInt(bullet.style.top);
+                bulletY -= 10;
+                bullet.style.top = bulletY + "px";
+
+                // remove bullet if out of screen
+                if (bulletY < 0) {
+                    bullet.remove();
+                    clearInterval(moveBullet);
+                    bullets = bullets.filter(b => b !== bullet);
+                }
+
+                // check collision with enemies
+                document.querySelectorAll(".enemy").forEach(enemy => {
+                    if (checkCollision(bullet, enemy)) {
+                        score += 10;
+                        scoreEl.textContent = score;
+                        enemy.remove();
+                        bullet.remove();
+                        bullets = bullets.filter(b => b !== bullet);
+                        clearInterval(moveBullet);
+                    }
+                });
+            }, 30);
         }
     }
 
-    function transfer() {
-        const recipient = document.getElementById("recipient").value;
-        const amount = parseFloat(document.getElementById("amount").value);
-        const message = document.getElementById("transferMessage");
+    function createEnemy() {
+        const enemy = document.createElement("div");
+        enemy.classList.add("enemy");
+        enemy.style.left = Math.floor(Math.random() * 560) + "px";
+        enemy.style.top = 0 + "px";
+        gameArea.appendChild(enemy);
 
-        if(!recipient || isNaN(amount) || amount <= 0) {
-            message.textContent = "Please enter valid recipient and amount";
-            message.classList.add("error");
-            return;
-        }
+        const moveEnemy = setInterval(() => {
+            let enemyY = parseInt(enemy.style.top);
+            enemyY += 5;
+            enemy.style.top = enemyY + "px";
 
-        if(amount > userBalance) {
-            message.textContent = "Insufficient balance";
-            message.classList.add("error");
-            return;
-        }
+            if (enemyY > 360) {
+                clearInterval(moveEnemy);
+                enemy.remove();
+            }
 
-        userBalance -= amount;
-        document.getElementById("balance").textContent = userBalance.toFixed(2);
-        message.textContent = `Successfully transferred $${amount.toFixed(2)} to ${recipient}`;
-        message.classList.remove("error");
-
-        // Reset input fields
-        document.getElementById("recipient").value = "";
-        document.getElementById("amount").value = "";
+            if (checkCollision(enemy, player)) {
+                gameOver();
+            }
+        }, 50);
     }
 
-    function logout() {
-        document.getElementById("loginDiv").classList.remove("hidden");
-        document.getElementById("dashboardDiv").classList.add("hidden");
-        document.getElementById("username").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("loginMessage").textContent = "";
-        userBalance = 1000;
-        document.getElementById("balance").textContent = userBalance;
-        document.getElementById("transferMessage").textContent = "";
+    function checkCollision(a, b) {
+        const rect1 = a.getBoundingClientRect();
+        const rect2 = b.getBoundingClientRect();
+        return !(
+            rect1.top > rect2.bottom ||
+            rect1.bottom < rect2.top ||
+            rect1.left > rect2.right ||
+            rect1.right < rect2.left
+        );
+    }
+
+    function startGame() {
+        resetGame();
+        enemyInterval = setInterval(createEnemy, 1500);
+    }
+
+    function resetGame() {
+        score = 0;
+        scoreEl.textContent = score;
+        gameArea.innerHTML = '<div class="player" id="player"></div>';
+        playerX = 280;
+        bullets = [];
+        player.style.left = playerX + "px";
+    }
+
+    function gameOver() {
+        clearInterval(enemyInterval);
+        alert("Game Over! Your Score: " + score);
     }
 </script>
 
