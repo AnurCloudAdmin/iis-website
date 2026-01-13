@@ -15,4 +15,155 @@
             background: #0ea5e9;
             color: white;
             padding: 20px;
-            text-align: c
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #0ea5e9;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #38bdf8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .balance {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .message {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>MyBank Online</h1>
+</header>
+
+<div class="container" id="loginDiv">
+    <h2>Login</h2>
+    <label>Username</label>
+    <input type="text" id="username" placeholder="Enter username">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Enter password">
+    <button onclick="login()">Login</button>
+    <p id="loginMessage" class="error"></p>
+</div>
+
+<div class="container hidden" id="dashboardDiv">
+    <h2>Dashboard</h2>
+    <p class="balance">Balance: $<span id="balance">1000</span></p>
+    
+    <h3>Transfer Money</h3>
+    <label>Recipient</label>
+    <input type="text" id="recipient" placeholder="Recipient name">
+    <label>Amount</label>
+    <input type="number" id="amount" placeholder="Amount">
+    <button onclick="transfer()">Transfer</button>
+    <p id="transferMessage" class="message"></p>
+
+    <button style="margin-top:20px;" onclick="logout()">Logout</button>
+</div>
+
+<script>
+    let userBalance = 1000;
+
+    function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const message = document.getElementById("loginMessage");
+
+        // Simple demo validation
+        if(username === "user" && password === "1234") {
+            document.getElementById("loginDiv").classList.add("hidden");
+            document.getElementById("dashboardDiv").classList.remove("hidden");
+            message.textContent = "";
+        } else {
+            message.textContent = "Invalid username or password";
+        }
+    }
+
+    function transfer() {
+        const recipient = document.getElementById("recipient").value;
+        const amount = parseFloat(document.getElementById("amount").value);
+        const message = document.getElementById("transferMessage");
+
+        if(!recipient || isNaN(amount) || amount <= 0) {
+            message.textContent = "Please enter valid recipient and amount";
+            message.classList.add("error");
+            return;
+        }
+
+        if(amount > userBalance) {
+            message.textContent = "Insufficient balance";
+            message.classList.add("error");
+            return;
+        }
+
+        userBalance -= amount;
+        document.getElementById("balance").textContent = userBalance.toFixed(2);
+        message.textContent = `Successfully transferred $${amount.toFixed(2)} to ${recipient}`;
+        message.classList.remove("error");
+
+        // Reset input fields
+        document.getElementById("recipient").value = "";
+        document.getElementById("amount").value = "";
+    }
+
+    function logout() {
+        document.getElementById("loginDiv").classList.remove("hidden");
+        document.getElementById("dashboardDiv").classList.add("hidden");
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("loginMessage").textContent = "";
+        userBalance = 1000;
+        document.getElementById("balance").textContent = userBalance;
+        document.getElementById("transferMessage").textContent = "";
+    }
+</script>
+
+</body>
+</html>
