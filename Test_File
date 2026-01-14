@@ -28,3 +28,99 @@
             text-decoration: none;
             margin: 15px;
             font-weight: bold;
+       }
+
+        nav a:hover {
+            color: #00f2fe;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            width: 250px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .card h3 {
+            color: #1e3c72;
+        }
+
+        .card p {
+            color: #555;
+        }
+
+        .btn {
+            background: linear-gradient(to right, #36d1dc, #5b86e5);
+            border: none;
+            padding: 10px 15px;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        footer {
+            background-color: #142850;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏦 SmartBank</h1>
+    <p>Your Trusted Digital Banking Partner</p>
+</header>
+
+<nav>
+    <a href="#">Home</a>
+    <a href="#">Accounts</a>
+    <a href="#">Transfers</a>
+    <a href="#">Loans</a>
+    <a href="#">Support</a>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h3>💰 Account Balance</h3>
+        <p>Check your savings and current account balance instantly.</p>
+        <button class="btn">View Balance</button>
+    </div>
+
+    <div class="card">
+        <h3>🔁 Fund Transfer</h3>
+        <p>Send money securely to any bank account.</p>
+        <button class="btn">Transfer Now</button>
+    </div>
+
+    <div class="card">
+        <h3>📄 Transactions</h3>
+        <p>View your recent transactions and statements.</p>
+        <button class="btn">View History</button>
+    </div>
+</div>
+
+<footer>
+    © 2026 SmartBank | Secure Online Banking
+</footer>
+
+</body>
+</html>
